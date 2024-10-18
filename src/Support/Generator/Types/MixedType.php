@@ -11,6 +11,7 @@ class MixedType extends Type
 
     public function toArray()
     {
-        return [];
+        // Yes. It is not an array. I live with it.
+        return (object) [];
     }
 }
