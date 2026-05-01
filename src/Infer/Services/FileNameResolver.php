@@ -56,7 +56,7 @@ class FileNameResolver
     {
         // If the name is prefixed with `\\`, it is already FQN
         $name = str_starts_with($shortName, '\\')
-            ?  ltrim($shortName, '\\')
+            ? ltrim($shortName, '\\')
             : $this->nameContext->getResolvedName(new Name([$shortName]), Use_::TYPE_NORMAL)->toString();
 
         $classLikeExists = class_exists($name)
