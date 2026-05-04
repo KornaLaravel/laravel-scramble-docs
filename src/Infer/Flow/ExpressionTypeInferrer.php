@@ -15,6 +15,7 @@ use Dedoc\Scramble\Support\Type\ArrayType;
 use Dedoc\Scramble\Support\Type\BooleanType;
 use Dedoc\Scramble\Support\Type\CallableStringType;
 use Dedoc\Scramble\Support\Type\KeyedArrayType;
+use Dedoc\Scramble\Support\Type\NeverType;
 use Dedoc\Scramble\Support\Type\OffsetAccessType;
 use Dedoc\Scramble\Support\Type\Reference\CallableCallReferenceType;
 use Dedoc\Scramble\Support\Type\Reference\MethodCallReferenceType;
@@ -25,7 +26,6 @@ use Dedoc\Scramble\Support\Type\SelfType;
 use Dedoc\Scramble\Support\Type\Type;
 use Dedoc\Scramble\Support\Type\Union;
 use Dedoc\Scramble\Support\Type\UnknownType;
-use Dedoc\Scramble\Support\Type\VoidType;
 use PhpParser\Node as PhpParserNode;
 use PhpParser\Node\Expr;
 
@@ -38,6 +38,11 @@ class ExpressionTypeInferrer
         private Scope $scope,
         private NodeTypesResolver $nodeTypesResolver,
     ) {}
+
+    public function resetCache(): self
+    {
+        return new self($this->scope, new NodeTypesResolver);
+    }
 
     /**
      * Ideally, `infer` should accept not Node but just expressions. @todo
@@ -66,7 +71,7 @@ class ExpressionTypeInferrer
             $expr instanceof PhpParserNode\Scalar => (new ScalarTypeGetter)($expr),
             $expr instanceof Expr\Cast => (new CastTypeGetter)($expr),
             $expr instanceof Expr\ConstFetch => (new ConstFetchTypeGetter)($expr),
-            $expr instanceof Expr\Throw_ => new VoidType,
+            $expr instanceof Expr\Throw_ => new NeverType,
             $expr instanceof Expr\Ternary => Union::wrap([
                 $this->infer($expr->if ?? $expr->cond, $variableTypeGetter),
                 $this->infer($expr->else, $variableTypeGetter),
